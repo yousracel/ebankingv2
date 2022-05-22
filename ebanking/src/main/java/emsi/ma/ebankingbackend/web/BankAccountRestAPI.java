@@ -1,8 +1,7 @@
 package emsi.ma.ebankingbackend.web;
 
-import emsi.ma.ebankingbackend.dtos.AccountHistoryDTO;
-import emsi.ma.ebankingbackend.dtos.AccountOperationDTO;
-import emsi.ma.ebankingbackend.dtos.BankAccountDTO;
+import emsi.ma.ebankingbackend.dtos.*;
+import emsi.ma.ebankingbackend.exceptions.BalanceNotSufficientException;
 import emsi.ma.ebankingbackend.exceptions.BankAccountNotFoundException;
 import emsi.ma.ebankingbackend.services.BankAccountService;
 import lombok.AllArgsConstructor;
@@ -40,4 +39,29 @@ public class BankAccountRestAPI {
     public AccountHistoryDTO getAccountHistory(@PathVariable String accountId, @RequestParam(name="page",defaultValue = "0") int page , @RequestParam(name="size",defaultValue = "5") int size) throws BankAccountNotFoundException {
         return bankAccountService.getAccountHistory(accountId,page,size);
     }
+
+
+    @PostMapping("/accounts/debit")
+    public DebitDTO debit( @RequestBody DebitDTO debitDTO) throws BankAccountNotFoundException, BalanceNotSufficientException {
+        this.bankAccountService.debit(debitDTO.getAccountId(), debitDTO.getAmount(), debitDTO.getDescription());
+        return debitDTO;
+
+    }
+
+    @PostMapping("/accounts/credit")
+    public CreditDTO credit( @RequestBody CreditDTO creditDTO) throws BankAccountNotFoundException{
+        this.bankAccountService.credit(creditDTO.getAccountId(), creditDTO.getAmount(), creditDTO.getDescription());
+        return creditDTO;
+
+    }
+
+    @PostMapping("/accounts/transfer")
+    public void transfer( @RequestBody TransferRequestDTO transferRequestDTO) throws BankAccountNotFoundException, BalanceNotSufficientException {
+        this.bankAccountService.transfer(
+                transferRequestDTO.getAccountSource(),
+                transferRequestDTO.getAccountDestination(),
+                transferRequestDTO.getAmount());
+
+    }
+
 }
