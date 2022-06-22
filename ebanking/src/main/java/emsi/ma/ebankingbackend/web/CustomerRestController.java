@@ -1,5 +1,6 @@
 package emsi.ma.ebankingbackend.web;
 
+import emsi.ma.ebankingbackend.dtos.BankAccountDTO;
 import emsi.ma.ebankingbackend.dtos.CustomerDTO;
 import emsi.ma.ebankingbackend.entities.Customer;
 import emsi.ma.ebankingbackend.exceptions.CustomerNotFoundException;
@@ -22,10 +23,11 @@ public class CustomerRestController {
     }
 
     @GetMapping("/customers/search")
-    public List<CustomerDTO> searchCustomers(@RequestParam(name="keyword",defaultValue = "") String keyword){
-
-        return bankAccountService.searchCustomers("%"+keyword+"%");
+    public List<CustomerDTO> searchCustomers(@RequestParam(name = "keyword", defaultValue = "")String keyword ){
+        return bankAccountService.searchCustomers(keyword);
     }
+
+
     @GetMapping("/customers/{id}")
     public CustomerDTO getCustomer(@PathVariable(name="id") Long customerId) throws CustomerNotFoundException {
         return bankAccountService.getCustomer(customerId);
@@ -33,7 +35,7 @@ public class CustomerRestController {
 
     @PostMapping("/customers")
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO request){
-       return bankAccountService.saveCustomer(request);
+        return bankAccountService.saveCustomer(request);
     }
 
     @PutMapping("/customers/{customerId}")
@@ -45,5 +47,10 @@ public class CustomerRestController {
     @DeleteMapping("/customers/{id}")
     public void deleteCustomer(@PathVariable Long id){
         bankAccountService.deleteCustomer(id);
+    }
+
+    @GetMapping("/customer-accounts/{id}")
+    public List<BankAccountDTO> getCustomerAccounts(@PathVariable(name="id") Long customerId)throws CustomerNotFoundException{
+        return bankAccountService.getCustomerAccounts(customerId);
     }
 }
