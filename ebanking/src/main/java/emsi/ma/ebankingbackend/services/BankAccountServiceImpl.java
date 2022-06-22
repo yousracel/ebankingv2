@@ -183,14 +183,30 @@ public class BankAccountServiceImpl implements BankAccountService{
         accountHistoryDTO.setPageSize(size);
         accountHistoryDTO.setCurrentPage(page);
         accountHistoryDTO.setTotalPages(accountOperations.getTotalPages());
+        System.out.println(accountHistoryDTO.getTotalPages());
         return accountHistoryDTO;
     }
 
     @Override
     public List<CustomerDTO> searchCustomers(String keyword) {
-        List<Customer> customers=customerRepository.searchCustomer(keyword);
-        List<CustomerDTO> customerDTOS = customers.stream().map(cust -> dtoMapper.fromCustomer(cust)).collect(Collectors.toList());
-
+        List<Customer> customers=customerRepository.searchCustomer("%"+keyword+"%");
+        List<CustomerDTO> customerDTOS = customers.stream().map(customer -> dtoMapper.fromCustomer(customer)).collect(Collectors.toList());
         return customerDTOS;
+    }
+
+    @Override
+    public List<BankAccountDTO> getCustomerAccounts(Long customerId) throws CustomerNotFoundException {
+        Customer customer=customerRepository.findById(customerId).orElse(null);
+        List<BankAccount> bankAccounts=customer.getBankAccounts();
+        List<BankAccountDTO> bankAccountDTOS = bankAccounts.stream().map(bankAccount -> {
+            if (bankAccount instanceof SavingAccount) {
+                SavingAccount savingAccount = (SavingAccount) bankAccount;
+                return dtoMapper.fromSavingBankAccount(savingAccount);
+            } else {
+                CurrentAccount currentAccount = (CurrentAccount) bankAccount;
+                return dtoMapper.fromCurrentBankAccount(currentAccount);
+            }
+        }).collect(Collectors.toList());
+        return bankAccountDTOS;
     }
 }
